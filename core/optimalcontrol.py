@@ -61,4 +61,4 @@ U0[7][6] = 1
 
 model = QOC(Hd, Hc, dt, N, maxpower, torch.randn(Hc.shape[0], N))
 optim = torch.optim.Adam(model.parameters(), lr = 0.003)
-train(model = model, optim = optim, target = U0, accuracy = 0.0001, roughness = 1, weight = 1/N, maxiterations = 100000, benchbool = False)
+train(model = model, optim = optim, target = U0, accuracy = 0.0001, roughness = 1, weight = 1/N, maxiterations = 100000)

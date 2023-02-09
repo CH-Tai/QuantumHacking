@@ -56,7 +56,7 @@ def penalty(matrix, weight):
 
 
 # Training function
-def train(model, optim, target, accuracy, roughness, weight, maxiterations, benchbool):
+def train(model, optim, target, accuracy, roughness, weight, maxiterations):
     fid = fidelity(target, model())
     pen = penalty(model.a, weight)
     loss = 1 - fid + pen
@@ -66,14 +66,12 @@ def train(model, optim, target, accuracy, roughness, weight, maxiterations, benc
             if i == 0:
                 start_time = time.time()
                 timing = time.time() - start_time
-                if benchbool != True:
-                    print(f"Epoch {i} ({math.floor(timing/3600):02}:{math.floor(timing/60 % 60):02}:{math.floor(timing % 60):02}.{str(timing % 1)[2:]})")
-                    print(f"- Loss: {loss.item()}\n- Fidelity: {fid}\n- Roughness: {pen}\n")
+                print(f"Epoch {i} ({math.floor(timing/3600):02}:{math.floor(timing/60 % 60):02}:{math.floor(timing % 60):02}.{str(timing % 1)[2:]})")
+                print(f"- Loss: {loss.item()}\n- Fidelity: {fid}\n- Roughness: {pen}\n")
             else:
                 timing = time.time() - start_time
-                if benchbool != True:
-                    print(f"Epoch {i} ({math.floor(timing/3600):02}:{math.floor(timing/60 % 60):02}:{math.floor(timing % 60):02}.{str(timing % 1)[2:]})")
-                    print(f"- Loss: {loss.item()}\n- Fidelity: {fid}\n- Roughness: {pen}\n- Average time per epoch: {(timing)/(i+1)} seconds\n")
+                print(f"Epoch {i} ({math.floor(timing/3600):02}:{math.floor(timing/60 % 60):02}:{math.floor(timing % 60):02}.{str(timing % 1)[2:]})")
+                print(f"- Loss: {loss.item()}\n- Fidelity: {fid}\n- Roughness: {pen}\n- Average time per epoch: {(timing)/(i+1)} seconds\n")
         optim.zero_grad()
         loss.backward(retain_graph=True)
         optim.step()
@@ -85,11 +83,8 @@ def train(model, optim, target, accuracy, roughness, weight, maxiterations, benc
     fid = fidelity(target, model())
     pen = penalty(model.a, weight)
     loss = 1 - fid + pen
-    if benchbool != True:
-        print("Training Finished:")
-        print(f"Epoch {i} ({math.floor(timing/3600):02}:{math.floor(timing/60 % 60):02}:{math.floor(timing % 60):02}.{str(timing % 1)[2:]})")
-        print(f"- Loss: {loss.item()}\n- Fidelity: {fid}\n- Roughness: {pen}\n- Average time per epoch: {(timing)/(i+1)} seconds\n")
-        model.plot()
-    totaltime = timing
-    if benchbool == True:
-        return totaltime
+    print("Training Finished:")
+    print(f"Epoch {i} ({math.floor(timing/3600):02}:{math.floor(timing/60 % 60):02}:{math.floor(timing % 60):02}.{str(timing % 1)[2:]})")
+    print(f"- Loss: {loss}\n- Fidelity: {fid}\n- Roughness: {pen}\n- Average time per epoch: {(timing)/(i+1)} seconds\n")
+    model.plot()
+    return fid

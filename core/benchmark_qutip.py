@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import datetime
 
-from qutip import Qobj, identity, sigmax, sigmaz
+from qutip import Qobj, identity
 from qutip.qip import hadamard_transform
 import qutip.logging_utils as logging
 logger = logging.get_logger()
@@ -10,12 +10,7 @@ logger = logging.get_logger()
 log_level = logging.INFO
 #QuTiP control modules
 import qutip.control.pulseoptim as cpo
-
 import torch
-
-example_name = 'Hadamard'
-# Drift Hamiltonian
-H_d = sigmaz()
 
 def construct_hamiltonian(n):
 
@@ -50,45 +45,43 @@ def construct_hamiltonian(n):
     return Hc, Hd
 
 
-def benchmark(n, N):
-        H_d = Qobj(construct_hamiltonian(n)[1].cpu().detach().numpy())
-        # The (single) control Hamiltonian
-        H_c = [Qobj(construct_hamiltonian(n)[0][0].cpu().detach().numpy()), Qobj(construct_hamiltonian(n)[0][1].cpu().detach().numpy())]
-        # start point for the gate evolution
-        U_0 = identity(2**n)
-        # Target for the gate evolution Hadamard gate
-        U_targ = hadamard_transform(n)
-        # Number of time slots
-        n_ts = N
-        # Time allowed for the evolution
-        evo_time = 0.05
-        # Fidelity error target
-        fid_err_targ = 1e-2
-        # Maximum iterations for the optimisation algorithm
-        max_iter = 10000
-        # Maximum (elapsed) time allowed in seconds
-        max_wall_time = 120
-        # Minimum gradient (sum of gradients squared)
-        # as this tends to 0 -> local minima has been found
-        min_grad = 10*1/10000000000000*N
-        # pulse type alternatives: RND|ZERO|LIN|SINE|SQUARE|SAW|TRIANGLE|
-        p_type = 'RND'
-        #Set to None to suppress output files
-        f_ext = "{}_n_ts{}_ptype{}.txt".format(example_name, n_ts, p_type)
-        result = cpo.optimize_pulse_unitary(H_d, H_c, U_0, U_targ, n_ts, evo_time, 
+def benchmark(n, N, graph):
+    H_d = Qobj(construct_hamiltonian(n)[1].cpu().detach().numpy())
+    # The (single) control Hamiltonian
+    H_c = [Qobj(construct_hamiltonian(n)[0][0].cpu().detach().numpy()), Qobj(construct_hamiltonian(n)[0][1].cpu().detach().numpy())]
+    # start point for the gate evolution
+    U_0 = identity(2**n)
+    # Target for the gate evolution Hadamard gate
+    U_targ = hadamard_transform(n)
+    # Number of time slots
+    n_ts = N
+    # Time allowed for the evolution
+    evo_time = 0.05
+    # Fidelity error target
+    fid_err_targ = 1e-2
+    # Maximum iterations for the optimisation algorithm
+    max_iter = 10000
+    # Maximum (elapsed) time allowed in seconds
+    max_wall_time = 10000
+    # Minimum gradient (sum of gradients squared)
+    # as this tends to 0 -> local minima has been found
+    min_grad = 1e-20
+    # pulse type alternatives: RND|ZERO|LIN|SINE|SQUARE|SAW|TRIANGLE|
+    p_type = 'RND'
+    result = cpo.optimize_pulse_unitary(H_d, H_c, U_0, U_targ, n_ts, evo_time, 
                         fid_err_targ=fid_err_targ, min_grad=min_grad, 
                         max_iter=max_iter, max_wall_time=max_wall_time, 
-                        out_file_ext=f_ext, init_pulse_type=p_type, 
-                        log_level=log_level, gen_stats=True)
-        result.stats.report()
-        print("Final evolution\n{}\n".format(result.evo_full_final))
-        print("********* Summary *****************")
-        print("Final fidelity error {}".format(result.fid_err))
-        print("Final gradient normal {}".format(result.grad_norm_final))
-        print("Terminated due to {}".format(result.termination_reason))
-        print("Number of iterations {}".format(result.num_iter))
-        print("Completed in {} HH:MM:SS.US".format(
-                datetime.timedelta(seconds=result.wall_time)))
+                        init_pulse_type=p_type, log_level=log_level, gen_stats=True)
+    # result.stats.report()
+    # print("Final evolution\n{}\n".format(result.evo_full_final))
+    print("********* Summary *****************")
+    print("Final fidelity error {}".format(result.fid_err))
+    print("Final gradient normal {}".format(result.grad_norm_final))
+    print("Terminated due to {}".format(result.termination_reason))
+    print("Number of iterations {}".format(result.num_iter))
+    print("Completed in {} HH:MM:SS.US".format(
+            datetime.timedelta(seconds=result.wall_time)))
+    if graph == True:
         fig1 = plt.figure()
         ax1 = fig1.add_subplot(2, 1, 1)
         ax1.set_title("Initial control amps")
@@ -107,5 +100,4 @@ def benchmark(n, N):
                 where='post')
         plt.tight_layout()
         plt.show()
-
-benchmark(2,1)
+    return datetime.timedelta(seconds=result.wall_time)
