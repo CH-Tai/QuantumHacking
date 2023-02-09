@@ -30,12 +30,13 @@ def construct_hamiltonian(nqubit,dtype=np.complex64):
 
 def to_qobj(H,nqubit):
     dims = [ [2 for i in range(nqubit)] for i in range(2)]
-    return Qobj(H[0],dims=dims),[Qobj(tmp,dims=dims) for tmp in H[1]]
+    return [Qobj(tmp,dims=dims) for tmp in H[0]], Qobj(H[1],dims=dims)
 
 dt = 0.05
 N_list = np.array([20,80,300,1200,5000])
 ## we use 100 iterations to estimate a single iteration
 R = 50
+print(to_qobj(construct_hamiltonian(2),2))
 for i,nqubit in enumerate(range(2,7)):
     print("---"*5+"\n"+"benchmark for %d qubits \t number of iterations %d"%(nqubit,R))
     H_c, H_d = to_qobj(construct_hamiltonian(nqubit),nqubit)

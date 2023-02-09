@@ -90,6 +90,6 @@ def train(model, optim, target, accuracy, roughness, weight, maxiterations, benc
         print(f"Epoch {i} ({math.floor(timing/3600):02}:{math.floor(timing/60 % 60):02}:{math.floor(timing % 60):02}.{str(timing % 1)[2:]})")
         print(f"- Loss: {loss.item()}\n- Fidelity: {fid}\n- Roughness: {pen}\n- Average time per epoch: {(timing)/(i+1)} seconds\n")
         model.plot()
-    itertime = (timing)/(i+1)
+    totaltime = timing
     if benchbool == True:
-        return itertime
+        return totaltime

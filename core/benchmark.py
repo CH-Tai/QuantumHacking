@@ -52,8 +52,8 @@ def benchmark(n, N):
         U0 = torch.kron(U0, H)
 
     model = QOC(Hd, Hc, dt, N, maxpower, torch.randn(Hc.shape[0], N))
-    optim = torch.optim.Adam(model.parameters(), lr = 0.001)
-    return train(model = model, optim = optim, target = U0, accuracy = 0.01, roughness = 10, weight = 1/N, maxiterations = 50, benchbool = True)
+    optim = torch.optim.Adam(model.parameters(), lr = 0.003)
+    return train(model = model, optim = optim, target = U0, accuracy = 0.05, roughness = 10, weight = 1/N, maxiterations = 10000, benchbool = True)
 
 def printresult(n, N, result):
     print(f"Number of qubits: {n}\nNumber of time slices: {N}")
